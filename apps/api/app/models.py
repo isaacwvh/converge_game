@@ -1,7 +1,7 @@
 from datetime import date, datetime, timezone
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, JSON, Numeric, String, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, JSON, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -22,7 +22,10 @@ class DatasetVersion(Base):
     label: Mapped[str] = mapped_column(String(100), unique=True)
     source_manifest: Mapped[dict] = mapped_column(JSON)
     is_active: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    effective_month: Mapped[str | None] = mapped_column(String(7), nullable=True, index=True)
     published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reviewed_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
 
 class Entity(Base):
@@ -54,10 +57,11 @@ class Puzzle(Base):
     __tablename__ = "puzzles"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
     category: Mapped[str] = mapped_column(String(40))
+    question_id: Mapped[str] = mapped_column("question", String(80), default="identify-country")
     day: Mapped[date | None] = mapped_column(Date, nullable=True)
     dataset_id: Mapped[str] = mapped_column(ForeignKey("dataset_versions.id"))
     target_id: Mapped[str] = mapped_column(ForeignKey("entities.id"))
-    __table_args__ = (UniqueConstraint("category", "day"),)
+    __table_args__ = (UniqueConstraint("day", name="uq_puzzles_day"),)
 
 
 class AnonymousPlayer(Base):
@@ -86,3 +90,34 @@ class Guess(Base):
     feedback: Mapped[dict] = mapped_column(JSON)
     idempotency_key: Mapped[str | None] = mapped_column(String(80), nullable=True)
     __table_args__ = (UniqueConstraint("round_id", "turn"), UniqueConstraint("round_id", "entity_id"), UniqueConstraint("round_id", "idempotency_key"))
+
+
+class Installation(Base):
+    __tablename__ = "installation"
+    id: Mapped[str] = mapped_column(String(20), primary_key=True, default="installation")
+    deployment_id: Mapped[str] = mapped_column(String(100), unique=True)
+    environment: Mapped[str] = mapped_column(String(20))
+    initialized_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class OperatorJob(Base):
+    __tablename__ = "operator_jobs"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    kind: Mapped[str] = mapped_column(String(80), index=True)
+    status: Mapped[str] = mapped_column(String(20), default="queued", index=True)
+    payload: Mapped[dict] = mapped_column(JSON)
+    result: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    requested_by: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class AdminAuditLog(Base):
+    __tablename__ = "admin_audit_log"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    admin_subject: Mapped[str] = mapped_column(String(255), index=True)
+    action: Mapped[str] = mapped_column(String(100), index=True)
+    details: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now, index=True)

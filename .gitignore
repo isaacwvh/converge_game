@@ -3,6 +3,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 .venv-native/
+.uv-cache/
+.uv-python/
 node_modules/
 dist/
 *.tsbuildinfo

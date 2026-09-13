@@ -1,4 +1,7 @@
+import pytest
+
 from app.domain import capital_distance_km, direction
+from app.import_countries import validate_rows
 
 
 def test_direction():
@@ -57,3 +60,25 @@ def test_practice_round_is_independent(client):
     assert practice["round_id"] != daily["round_id"]
     assert practice["date"] is None
     assert "answer" not in practice
+
+
+def test_country_import_rejects_non_finite_required_metric():
+    rows = [
+        {
+            "code": code,
+            "name": f"Country {code}",
+            "aliases": "",
+            "population": "100",
+            "area_km2": "10",
+            "gdp_per_capita_usd": "1000",
+            "temp_c": "20",
+            "capital": f"Capital {code}",
+            "capital_lat": "1",
+            "capital_lon": "2",
+            "provenance": "{}",
+        }
+        for code in ("AAA", "BBB", "CCC", "DDD", "EEE")
+    ]
+    rows[0]["gdp_per_capita_usd"] = "nan"
+    with pytest.raises(ValueError, match="Invalid positive metric"):
+        validate_rows(rows)

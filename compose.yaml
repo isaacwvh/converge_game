@@ -34,6 +34,16 @@ services:
     depends_on:
       db:
         condition: service_healthy
+  worker:
+    build: ./apps/api
+    command: ["python", "-m", "app.admin_jobs"]
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+    restart: unless-stopped
   web:
     build: ./apps/web
     ports:

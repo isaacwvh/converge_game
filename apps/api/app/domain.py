@@ -2,7 +2,6 @@ from math import asin, cos, radians, sin, sqrt
 
 from .models import CountryValue
 
-MAX_GUESSES = 8
 
 
 def direction(target: float, guess: float, tolerance: float = 0) -> str:
