@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: converge
+      POSTGRES_USER: converge
+      POSTGRES_PASSWORD: converge
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U converge -d converge"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  api:
+    build: ./apps/api
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  init:
+    build: ./apps/api
+    command: ["python", "-m", "app.init_db"]
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+  web:
+    build: ./apps/web
+    ports:
+      - "5173:80"
+    depends_on:
+      api:
+        condition: service_healthy
+volumes:
+  pgdata:

@@ -1,0 +1,11 @@
+code,name,aliases,population,area_km2,gdp_per_capita_usd,temp_c,capital,capital_lat,capital_lon,provenance
+JPN,Japan,,123800000,377975,32487,12.5,Tokyo,35.6762,139.6503,"{""type"":""demo approximate; replace before launch""}"
+IND,India,,1451000000,3287263,2697,24.0,New Delhi,28.6139,77.2090,"{""type"":""demo approximate; replace before launch""}"
+IDN,Indonesia,,283500000,1904569,4925,25.0,Jakarta,-6.2088,106.8456,"{""type"":""demo approximate; replace before launch""}"
+USA,United States,USA|US|United States of America,340100000,9833517,85810,9.7,Washington DC,38.9072,-77.0369,"{""type"":""demo approximate; replace before launch""}"
+BRA,Brazil,,212000000,8515767,10044,24.1,Brasilia,-15.7975,-47.8919,"{""type"":""demo approximate; replace before launch""}"
+DEU,Germany,,83500000,357588,56200,9.6,Berlin,52.5200,13.4050,"{""type"":""demo approximate; replace before launch""}"
+FRA,France,,68500000,551695,44500,11.7,Paris,48.8566,2.3522,"{""type"":""demo approximate; replace before launch""}"
+AUS,Australia,,27000000,7692024,64400,21.7,Canberra,-35.2809,149.1300,"{""type"":""demo approximate; replace before launch""}"
+CAN,Canada,,41400000,9984670,53300,-5.4,Ottawa,45.4215,-75.6972,"{""type"":""demo approximate; replace before launch""}"
+SGP,Singapore,,6040000,735,90600,27.2,Singapore,1.3521,103.8198,"{""type"":""demo approximate; replace before launch""}"
