@@ -2,11 +2,23 @@
 
 CSV columns: `code` (unique ISO alpha-3), `name`, `aliases` (pipe-separated), `population` (people), `area_km2` (km²), `gdp_per_capita_usd` (USD per person), `temp_c` (annual mean Celsius), `capital`, `capital_lat`, `capital_lon` (WGS84 degrees), and `provenance` (JSON object describing each source and reference year).
 
-Country eligibility is a completeness rule, not a jurisdiction checklist: code, name, population, land area, GDP per capita, annual mean temperature, capital name, and both capital coordinates must all be present and valid. The importer rejects incomplete, non-finite, non-positive, or out-of-range required values. It does not synthesize estimates or `N/A` feedback, and publication does not require every official territory.
+Snapshot inclusion is a completeness rule, not a standard-daily target rule: code, name, population, land area, GDP per capita, annual mean temperature, capital name, and both capital coordinates must all be present and valid. The importer rejects incomplete, non-finite, non-positive, or out-of-range required values. It does not synthesize estimates or `N/A` feedback, and publication does not require every official territory.
 
 Use a reviewed common reference year for economic metrics and a stated climate reference period. Choose one capital per country and retain it consistently. Imports validate shape, ranges, and unique country codes. The operator publishes a new immutable label. Existing puzzles keep their old dataset version. A scheduled production process should import and review data, then explicitly activate a new version before scheduling future puzzles.
 
 The bundled CSV is only a development fixture. Its values are approximate and must be replaced before public launch.
+
+## Gameplay geography and difficulty
+
+`apps/api/data/country_gameplay.csv` is version-controlled gameplay policy keyed by ISO alpha-3 code. Its continent and subregion values derive from the [UN M49 overview](https://unstats.un.org/unsd/methodology/m49/overview). Its `easy`, `medium`, and `expert` tiers are curated recognizability judgments:
+
+- easy and medium rows have `standard_target=true`
+- expert rows remain stored and searchable but cannot become newly scheduled standard answers
+- an unknown code is classified as `unclassified`, stored and searchable, and excluded from standard targets until deliberately reviewed
+
+This catalog is not imported into PostgreSQL and does not modify immutable source measurements. Changing it affects future unscheduled target eligibility. Existing puzzles retain their pinned dataset and target. Schedule previews fingerprint the eligible target IDs, so a catalog change invalidates an unapplied preview.
+
+The administrator reviews difficulty counts and unclassified codes in the snapshot detail panel. Routine fetch, review, publication, and scheduling require no manual per-country classification.
 
 ## Monthly public-data workflow
 
@@ -26,4 +38,4 @@ The first command stages a snapshot and prints its label. Review its country cou
 
 The schedule command operates on the global daily calendar. It considers every registered category/question with a published snapshot for that exact month, chooses one game and target deterministically for each date, and stores the result. With only countries registered, every scheduled challenge remains a country challenge.
 
-Target selection uses category/question-specific least-recently-used rotation over stable entity IDs, with recent targets excluded when alternatives exist and a deterministic salted tie-breaker. It continues indefinitely without exhausting a category and adapts when a later snapshot adds, removes, or restores eligible entities.
+Target selection uses category/question-specific least-recently-used rotation over standard target IDs, with recent targets excluded when alternatives exist and a deterministic salted tie-breaker. Expert and unclassified countries remain valid searchable guesses. Rotation continues indefinitely without exhausting a category and adapts when a later snapshot adds, removes, or restores eligible entities.

@@ -13,6 +13,17 @@ type AuthState = {
 };
 type Question = {question_id: string; question_name: string; guess_limit: number; dimensions: {id: string; label: string}[]};
 type Category = {id: string; name: string; entity_label: string; questions: Question[]};
+type DifficultyCounts = {easy: number; medium: number; expert: number; unclassified: number};
+type DatasetQuestion = {
+  question: string;
+  eligible_count: number;
+  target_count: number;
+  searchable_count?: number;
+  difficulty_counts?: DifficultyCounts;
+  difficulty_catalog_version?: string;
+  geography_source?: string;
+  unclassified_codes?: string[];
+};
 type Dataset = {
   id: string;
   category: string;
@@ -24,7 +35,7 @@ type Dataset = {
   reviewed_at: string|null;
   reviewed_by: string|null;
   source_manifest: Record<string, unknown>;
-  questions: {question: string; eligible_count: number}[];
+  questions: DatasetQuestion[];
   puzzle_count: number;
   can_review: boolean;
   can_publish: boolean;
@@ -221,8 +232,8 @@ export function AdminApp() {
 
   async function reveal(day: PlanDay) {
     if (!window.confirm(`Reveal and audit the target for ${day.date}?`)) return;
-    const result = await mutate<{target: {name: string; code: string}}>(`reveal-${day.date}`, () => request(`/api/v1/admin/schedule/${day.date}/reveal`, auth, {method: 'POST'}), `Revealed ${day.date}.`);
-    if (result) setRevealed(current => ({...current, [day.date]: `${result.target.name} (${result.target.code})`}));
+    const result = await mutate<{target: {name: string; code?: string; difficulty?: string}}>(`reveal-${day.date}`, () => request(`/api/v1/admin/schedule/${day.date}/reveal`, auth, {method: 'POST'}), `Revealed ${day.date}.`);
+    if (result) setRevealed(current => ({...current, [day.date]: `${result.target.name}${result.target.code ? ` (${result.target.code})` : ''}${result.target.difficulty ? ` · ${result.target.difficulty}` : ''}`}));
   }
 
   async function logout() {
@@ -284,14 +295,16 @@ export function AdminApp() {
         <div className="admin-panel-heading"><div><span className="eyebrow">Step 2</span><h2>Country snapshots</h2><p>Fetch stages a complete-record World Bank snapshot. Nothing becomes playable until review and publication.</p></div>
           <div className="admin-actions"><label>Effective month<input type="month" value={month} onChange={event => {setMonth(event.target.value); setPlan(null);}}/></label><button className="admin-primary" disabled={!!busy || activeJobs.length > 0} onClick={fetchCountries}>{busy === 'fetch' ? 'Queueing…' : 'Fetch live snapshot'}</button></div>
         </div>
-        <div className="admin-table-wrap"><table><thead><tr><th>Snapshot</th><th>Month</th><th>Eligible</th><th>State</th><th>Puzzles</th><th>Actions</th></tr></thead><tbody>
-          {datasets.map(dataset => <tr key={dataset.id}><td><button className="admin-text-button" onClick={() => openDataset(dataset)}>{dataset.label}</button><small>{dataset.category}{dataset.is_demo ? ' · demo' : ''}</small></td><td>{dataset.effective_month || 'Fallback'}</td><td>{dataset.questions.map(q => `${q.question}: ${q.eligible_count}`).join(', ') || 'Unregistered'}</td><td>{dataset.is_active ? <Status tone="good">Published</Status> : dataset.reviewed_at ? <Status tone="ready">Reviewed</Status> : <Status>Staged</Status>}</td><td>{dataset.puzzle_count}</td><td className="admin-row-actions"><button disabled={!dataset.can_review || !!busy} onClick={() => reviewDataset(dataset)}>Review</button><button disabled={!dataset.can_publish || !!busy} title={dataset.publish_blocker || ''} onClick={() => publishDataset(dataset)}>Publish</button></td></tr>)}
+        <div className="admin-table-wrap"><table><thead><tr><th>Snapshot</th><th>Month</th><th>Difficulty / targets</th><th>State</th><th>Puzzles</th><th>Actions</th></tr></thead><tbody>
+          {datasets.map(dataset => <tr key={dataset.id}><td><button className="admin-text-button" onClick={() => openDataset(dataset)}>{dataset.label}</button><small>{dataset.category}{dataset.is_demo ? ' · demo' : ''}</small></td><td>{dataset.effective_month || 'Fallback'}</td><td>{dataset.questions.length ? dataset.questions.map(q => <div key={q.question}><strong>{q.target_count} standard targets</strong>{q.difficulty_counts && <small>{q.difficulty_counts.easy} easy · {q.difficulty_counts.medium} medium · {q.difficulty_counts.expert} expert{q.difficulty_counts.unclassified ? ` · ${q.difficulty_counts.unclassified} unclassified` : ''}</small>}</div>) : 'Unregistered'}</td><td>{dataset.is_active ? <Status tone="good">Published</Status> : dataset.reviewed_at ? <Status tone="ready">Reviewed</Status> : <Status>Staged</Status>}</td><td>{dataset.puzzle_count}</td><td className="admin-row-actions"><button disabled={!dataset.can_review || !!busy} onClick={() => reviewDataset(dataset)}>Review</button><button disabled={!dataset.can_publish || !!busy} title={dataset.publish_blocker || ''} onClick={() => publishDataset(dataset)}>Publish</button></td></tr>)}
         </tbody></table></div>
         {!datasets.length && <p className="admin-empty">No snapshots exist. Fetch the first live snapshot above.</p>}
       </section>
 
       {detail && <section className="admin-panel admin-detail">
-        <div className="admin-panel-heading"><div><span className="eyebrow">Snapshot review</span><h2>{detail.label}</h2><p>{detail.rows.length} complete eligible records · imported {fmtDate(detail.imported_at)}</p></div><button onClick={() => setDetail(null)}>Close</button></div>
+        <div className="admin-panel-heading"><div><span className="eyebrow">Snapshot review</span><h2>{detail.label}</h2><p>{detail.rows.length} searchable records · {detail.questions[0]?.target_count || 0} standard targets · imported {fmtDate(detail.imported_at)}</p></div><button onClick={() => setDetail(null)}>Close</button></div>
+        {detail.questions[0]?.difficulty_counts && <div className="admin-plan-summary"><span><strong>{detail.questions[0].difficulty_counts.easy}</strong> easy</span><span><strong>{detail.questions[0].difficulty_counts.medium}</strong> medium</span><span><strong>{detail.questions[0].difficulty_counts.expert}</strong> expert</span><span><strong>{detail.questions[0].difficulty_counts.unclassified}</strong> unclassified</span><span><strong>{detail.questions[0].difficulty_catalog_version}</strong> catalog</span></div>}
+        {detail.questions[0]?.unclassified_codes?.length ? <div className="admin-message error">Unclassified codes are stored and searchable but excluded from standard targets: {detail.questions[0].unclassified_codes.join(', ')}</div> : null}
         <div className="admin-manifest"><div><strong>Source manifest</strong><pre>{JSON.stringify(detail.source_manifest, null, 2)}</pre></div><div><strong>Change summary</strong>{detail.comparison ? <><p>Compared with {detail.comparison.previous_label}</p><p>Added: {detail.comparison.added.join(', ') || 'None'}</p><p>Removed: {detail.comparison.removed.join(', ') || 'None'}</p><p>Renamed: {detail.comparison.renamed.length}</p></> : <p>First snapshot; no previous comparison.</p>}</div></div>
         <div className="admin-table-wrap admin-records"><table><thead><tr>{Object.keys(detail.rows[0] || {}).filter(key => key !== 'provenance' && key !== 'entity_id').map(key => <th key={key}>{key.replaceAll('_', ' ')}</th>)}</tr></thead><tbody>{detail.rows.map(row => <tr key={String(row.entity_id)}>{Object.entries(row).filter(([key]) => key !== 'provenance' && key !== 'entity_id').map(([key, value]) => <td key={key}>{String(value)}</td>)}</tr>)}</tbody></table></div>
       </section>}

@@ -1,0 +1,250 @@
+code,continent,subregion,difficulty,standard_target
+ABW,North America,Caribbean,expert,false
+AFG,Asia,Southern Asia,easy,true
+AGO,Africa,Middle Africa,medium,true
+AIA,North America,Caribbean,expert,false
+ALA,Europe,Northern Europe,expert,false
+ALB,Europe,Southern Europe,medium,true
+AND,Europe,Southern Europe,medium,true
+ARE,Asia,Western Asia,easy,true
+ARG,South America,South America,easy,true
+ARM,Asia,Western Asia,medium,true
+ASM,Oceania,Polynesia,expert,false
+ATA,,,expert,false
+ATF,Africa,Eastern Africa,expert,false
+ATG,North America,Caribbean,expert,false
+AUS,Oceania,Australia and New Zealand,easy,true
+AUT,Europe,Western Europe,easy,true
+AZE,Asia,Western Asia,medium,true
+BDI,Africa,Eastern Africa,expert,false
+BEL,Europe,Western Europe,easy,true
+BEN,Africa,Western Africa,expert,false
+BES,North America,Caribbean,expert,false
+BFA,Africa,Western Africa,expert,false
+BGD,Asia,Southern Asia,easy,true
+BGR,Europe,Eastern Europe,medium,true
+BHR,Asia,Western Asia,medium,true
+BHS,North America,Caribbean,medium,true
+BIH,Europe,Southern Europe,medium,true
+BLM,North America,Caribbean,expert,false
+BLR,Europe,Eastern Europe,medium,true
+BLZ,North America,Central America,medium,true
+BMU,North America,Northern America,expert,false
+BOL,South America,South America,easy,true
+BRA,South America,South America,easy,true
+BRB,North America,Caribbean,expert,false
+BRN,Asia,South-eastern Asia,medium,true
+BTN,Asia,Southern Asia,medium,true
+BVT,South America,South America,expert,false
+BWA,Africa,Southern Africa,medium,true
+CAF,Africa,Middle Africa,expert,false
+CAN,North America,Northern America,easy,true
+CCK,Oceania,Australia and New Zealand,expert,false
+CHE,Europe,Western Europe,easy,true
+CHL,South America,South America,easy,true
+CHN,Asia,Eastern Asia,easy,true
+CIV,Africa,Western Africa,medium,true
+CMR,Africa,Middle Africa,medium,true
+COD,Africa,Middle Africa,medium,true
+COG,Africa,Middle Africa,medium,true
+COK,Oceania,Polynesia,expert,false
+COL,South America,South America,easy,true
+COM,Africa,Eastern Africa,expert,false
+CPV,Africa,Western Africa,expert,false
+CRI,North America,Central America,easy,true
+CUB,North America,Caribbean,easy,true
+CUW,North America,Caribbean,expert,false
+CXR,Oceania,Australia and New Zealand,expert,false
+CYM,North America,Caribbean,expert,false
+CYP,Asia,Western Asia,medium,true
+CZE,Europe,Eastern Europe,easy,true
+DEU,Europe,Western Europe,easy,true
+DJI,Africa,Eastern Africa,expert,false
+DMA,North America,Caribbean,expert,false
+DNK,Europe,Northern Europe,easy,true
+DOM,North America,Caribbean,medium,true
+DZA,Africa,Northern Africa,easy,true
+ECU,South America,South America,easy,true
+EGY,Africa,Northern Africa,easy,true
+ERI,Africa,Eastern Africa,expert,false
+ESH,Africa,Northern Africa,expert,false
+ESP,Europe,Southern Europe,easy,true
+EST,Europe,Northern Europe,medium,true
+ETH,Africa,Eastern Africa,easy,true
+FIN,Europe,Northern Europe,easy,true
+FJI,Oceania,Melanesia,medium,true
+FLK,South America,South America,expert,false
+FRA,Europe,Western Europe,easy,true
+FRO,Europe,Northern Europe,expert,false
+FSM,Oceania,Micronesia,expert,false
+GAB,Africa,Middle Africa,expert,false
+GBR,Europe,Northern Europe,easy,true
+GEO,Asia,Western Asia,medium,true
+GGY,Europe,Northern Europe,expert,false
+GHA,Africa,Western Africa,easy,true
+GIB,Europe,Southern Europe,expert,false
+GIN,Africa,Western Africa,expert,false
+GLP,North America,Caribbean,expert,false
+GMB,Africa,Western Africa,expert,false
+GNB,Africa,Western Africa,expert,false
+GNQ,Africa,Middle Africa,expert,false
+GRC,Europe,Southern Europe,easy,true
+GRD,North America,Caribbean,expert,false
+GRL,North America,Northern America,expert,false
+GTM,North America,Central America,medium,true
+GUF,South America,South America,expert,false
+GUM,Oceania,Micronesia,expert,false
+GUY,South America,South America,medium,true
+HKG,Asia,Eastern Asia,expert,false
+HMD,Oceania,Australia and New Zealand,expert,false
+HND,North America,Central America,medium,true
+HRV,Europe,Southern Europe,easy,true
+HTI,North America,Caribbean,easy,true
+HUN,Europe,Eastern Europe,medium,true
+IDN,Asia,South-eastern Asia,easy,true
+IMN,Europe,Northern Europe,expert,false
+IND,Asia,Southern Asia,easy,true
+IOT,Africa,Eastern Africa,expert,false
+IRL,Europe,Northern Europe,easy,true
+IRN,Asia,Southern Asia,easy,true
+IRQ,Asia,Western Asia,easy,true
+ISL,Europe,Northern Europe,easy,true
+ISR,Asia,Western Asia,easy,true
+ITA,Europe,Southern Europe,easy,true
+JAM,North America,Caribbean,easy,true
+JEY,Europe,Northern Europe,expert,false
+JOR,Asia,Western Asia,medium,true
+JPN,Asia,Eastern Asia,easy,true
+KAZ,Asia,Central Asia,medium,true
+KEN,Africa,Eastern Africa,easy,true
+KGZ,Asia,Central Asia,expert,false
+KHM,Asia,South-eastern Asia,medium,true
+KIR,Oceania,Micronesia,expert,false
+KNA,North America,Caribbean,expert,false
+KOR,Asia,Eastern Asia,easy,true
+KWT,Asia,Western Asia,medium,true
+LAO,Asia,South-eastern Asia,medium,true
+LBN,Asia,Western Asia,medium,true
+LBR,Africa,Western Africa,medium,true
+LBY,Africa,Northern Africa,medium,true
+LCA,North America,Caribbean,expert,false
+LIE,Europe,Western Europe,expert,false
+LKA,Asia,Southern Asia,medium,true
+LSO,Africa,Southern Africa,expert,false
+LTU,Europe,Northern Europe,medium,true
+LUX,Europe,Western Europe,medium,true
+LVA,Europe,Northern Europe,medium,true
+MAC,Asia,Eastern Asia,expert,false
+MAF,North America,Caribbean,expert,false
+MAR,Africa,Northern Africa,easy,true
+MCO,Europe,Western Europe,medium,true
+MDA,Europe,Eastern Europe,medium,true
+MDG,Africa,Eastern Africa,easy,true
+MDV,Asia,Southern Asia,easy,true
+MEX,North America,Central America,easy,true
+MHL,Oceania,Micronesia,expert,false
+MKD,Europe,Southern Europe,medium,true
+MLI,Africa,Western Africa,medium,true
+MLT,Europe,Southern Europe,medium,true
+MMR,Asia,South-eastern Asia,medium,true
+MNE,Europe,Southern Europe,medium,true
+MNG,Asia,Eastern Asia,medium,true
+MNP,Oceania,Micronesia,expert,false
+MOZ,Africa,Eastern Africa,medium,true
+MRT,Africa,Western Africa,expert,false
+MSR,North America,Caribbean,expert,false
+MTQ,North America,Caribbean,expert,false
+MUS,Africa,Eastern Africa,medium,true
+MWI,Africa,Eastern Africa,expert,false
+MYS,Asia,South-eastern Asia,easy,true
+MYT,Africa,Eastern Africa,expert,false
+NAM,Africa,Southern Africa,medium,true
+NCL,Oceania,Melanesia,expert,false
+NER,Africa,Western Africa,medium,true
+NFK,Oceania,Australia and New Zealand,expert,false
+NGA,Africa,Western Africa,easy,true
+NIC,North America,Central America,medium,true
+NIU,Oceania,Polynesia,expert,false
+NLD,Europe,Western Europe,easy,true
+NOR,Europe,Northern Europe,easy,true
+NPL,Asia,Southern Asia,easy,true
+NRU,Oceania,Micronesia,expert,false
+NZL,Oceania,Australia and New Zealand,easy,true
+OMN,Asia,Western Asia,medium,true
+PAK,Asia,Southern Asia,easy,true
+PAN,North America,Central America,easy,true
+PCN,Oceania,Polynesia,expert,false
+PER,South America,South America,easy,true
+PHL,Asia,South-eastern Asia,easy,true
+PLW,Oceania,Micronesia,expert,false
+PNG,Oceania,Melanesia,medium,true
+POL,Europe,Eastern Europe,easy,true
+PRI,North America,Caribbean,expert,false
+PRK,Asia,Eastern Asia,medium,true
+PRT,Europe,Southern Europe,easy,true
+PRY,South America,South America,medium,true
+PSE,Asia,Western Asia,medium,true
+PYF,Oceania,Polynesia,expert,false
+QAT,Asia,Western Asia,easy,true
+REU,Africa,Eastern Africa,expert,false
+ROU,Europe,Eastern Europe,easy,true
+RUS,Europe,Eastern Europe,easy,true
+RWA,Africa,Eastern Africa,medium,true
+SAU,Asia,Western Asia,easy,true
+SDN,Africa,Northern Africa,medium,true
+SEN,Africa,Western Africa,medium,true
+SGP,Asia,South-eastern Asia,easy,true
+SGS,South America,South America,expert,false
+SHN,Africa,Western Africa,expert,false
+SJM,Europe,Northern Europe,expert,false
+SLB,Oceania,Melanesia,expert,false
+SLE,Africa,Western Africa,expert,false
+SLV,North America,Central America,medium,true
+SMR,Europe,Southern Europe,expert,false
+SOM,Africa,Eastern Africa,expert,false
+SPM,North America,Northern America,expert,false
+SRB,Europe,Southern Europe,medium,true
+SSD,Africa,Eastern Africa,medium,true
+STP,Africa,Middle Africa,expert,false
+SUR,South America,South America,expert,false
+SVK,Europe,Eastern Europe,medium,true
+SVN,Europe,Southern Europe,medium,true
+SWE,Europe,Northern Europe,easy,true
+SWZ,Africa,Southern Africa,medium,true
+SXM,North America,Caribbean,expert,false
+SYC,Africa,Eastern Africa,expert,false
+SYR,Asia,Western Asia,medium,true
+TCA,North America,Caribbean,expert,false
+TCD,Africa,Middle Africa,medium,true
+TGO,Africa,Western Africa,expert,false
+THA,Asia,South-eastern Asia,easy,true
+TJK,Asia,Central Asia,expert,false
+TKL,Oceania,Polynesia,expert,false
+TKM,Asia,Central Asia,expert,false
+TLS,Asia,South-eastern Asia,expert,false
+TON,Oceania,Polynesia,expert,false
+TTO,North America,Caribbean,medium,true
+TUN,Africa,Northern Africa,easy,true
+TUR,Asia,Western Asia,easy,true
+TUV,Oceania,Polynesia,expert,false
+TZA,Africa,Eastern Africa,easy,true
+UGA,Africa,Eastern Africa,easy,true
+UKR,Europe,Eastern Europe,easy,true
+UMI,Oceania,Micronesia,expert,false
+URY,South America,South America,easy,true
+USA,North America,Northern America,easy,true
+UZB,Asia,Central Asia,medium,true
+VAT,Europe,Southern Europe,medium,true
+VCT,North America,Caribbean,expert,false
+VEN,South America,South America,easy,true
+VGB,North America,Caribbean,expert,false
+VIR,North America,Caribbean,expert,false
+VNM,Asia,South-eastern Asia,easy,true
+VUT,Oceania,Melanesia,expert,false
+WLF,Oceania,Polynesia,expert,false
+WSM,Oceania,Polynesia,expert,false
+YEM,Asia,Western Asia,expert,false
+ZAF,Africa,Southern Africa,easy,true
+ZMB,Africa,Eastern Africa,medium,true
+ZWE,Africa,Eastern Africa,easy,true
+XKX,Europe,Southern Europe,medium,true

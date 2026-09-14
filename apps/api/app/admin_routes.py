@@ -19,8 +19,9 @@ from .admin_service import (
     state,
 )
 from .db import get_db
-from .models import DatasetVersion, Entity, Puzzle
+from .models import DatasetVersion, Puzzle
 from .scheduler import apply_month_plan
+from .service import definition_for
 
 router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
 
@@ -145,8 +146,9 @@ def reveal_target(
     puzzle = db.scalar(select(Puzzle).where(Puzzle.day == day))
     if puzzle is None:
         raise HTTPException(404, "Challenge not scheduled")
-    target = db.get(Entity, puzzle.target_id)
+    definition = definition_for(puzzle)
     dataset = db.get(DatasetVersion, puzzle.dataset_id)
+    target = definition.serialize_answer(db, puzzle.dataset_id, puzzle.target_id)
     audit(db, admin.subject, "schedule.reveal", {"day": day.isoformat(), "puzzle_id": puzzle.id})
     db.commit()
     return {
@@ -154,5 +156,5 @@ def reveal_target(
         "category": puzzle.category,
         "question": puzzle.question_id,
         "dataset": dataset.label,
-        "target": {"id": target.id, "code": target.code, "name": target.name},
+        "target": target,
     }

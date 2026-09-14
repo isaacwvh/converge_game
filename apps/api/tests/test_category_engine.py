@@ -28,7 +28,7 @@ class TestThingsCategory(CategoryDefinition):
     )
     rules = {"arrows": "Arrows compare name length", "timezone": "UTC"}
 
-    def eligible_entity_ids(self, db, dataset_id):
+    def target_entity_ids(self, db, dataset_id):
         dataset = db.get(DatasetVersion, dataset_id)
         if dataset is None or dataset.category != self.category_id:
             return []
@@ -39,7 +39,7 @@ class TestThingsCategory(CategoryDefinition):
         )
 
     def search_entities(self, db, dataset_id, query, limit=25):
-        eligible = set(self.eligible_entity_ids(db, dataset_id))
+        eligible = set(self.target_entity_ids(db, dataset_id))
         needle = query.casefold()
         return [
             entity
@@ -50,7 +50,7 @@ class TestThingsCategory(CategoryDefinition):
         ][:limit]
 
     def compare(self, db, dataset_id, target_id, guess_id):
-        eligible = self.eligible_entity_ids(db, dataset_id)
+        eligible = self.target_entity_ids(db, dataset_id)
         if target_id not in eligible or guess_id not in eligible:
             raise ValueError("Thing is not eligible")
         target = db.get(Entity, target_id)
@@ -60,7 +60,7 @@ class TestThingsCategory(CategoryDefinition):
         return {"name_length": {"direction": direction, "guess_value": len(guess.name)}}
 
     def serialize_answer(self, db, dataset_id, target_id):
-        if target_id not in self.eligible_entity_ids(db, dataset_id):
+        if target_id not in self.target_entity_ids(db, dataset_id):
             raise ValueError("Thing is not eligible")
         entity = db.get(Entity, target_id)
         return {"entity_id": entity.id, "name": entity.name}
@@ -73,7 +73,6 @@ def test_country_compatibility_route_is_the_global_daily_round(client):
     assert compatibility_round.status_code == 200
     assert global_round.json()["round_id"] == compatibility_round.json()["round_id"]
     assert global_round.json()["question"] == "identify-country"
-    assert global_round.json()["game"]["dimensions"][0]["id"] == "population"
     catalog = client.get("/api/v1/categories").json()
     assert catalog[0]["id"] == "countries"
     assert catalog[0]["questions"][0]["question_id"] == "identify-country"

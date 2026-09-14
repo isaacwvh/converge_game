@@ -115,13 +115,15 @@ A failed job remains visible with its error. Correct the source/configuration is
 Select the staged snapshot label. The review view shows:
 
 - source manifest and fingerprint
-- source and eligible counts
+- source, searchable, and standard-target counts
+- easy, medium, expert, and unclassified counts
+- gameplay catalog version
 - exclusion reasons
 - indicator year and climate period
-- every eligible country and gameplay value
+- every searchable country, its gameplay values, geography, difficulty, and target status
 - countries added, removed, or renamed relative to the previous snapshot
 
-Review source coverage and spot-check values. Closing the view does not change state.
+Review source coverage, confirm that `unclassified` is zero, and spot-check values. An unclassified country is retained and searchable but excluded from standard target selection. Closing the view does not change state.
 
 ### 3. Review
 
@@ -151,17 +153,39 @@ Preview is read-only and hides targets. It returns a fingerprint covering the sc
 
 Apply creates only missing dates. Existing puzzles are immutable and preserved. Concurrent schedulers are also constrained by the database's one-puzzle-per-day uniqueness rule.
 
+## Country difficulty and guidance
+
+Country measurements remain in immutable World Bank snapshots. A separate version-controlled gameplay catalog joins them by stable ISO alpha-3 code. Geography follows the [United Nations M49 classification](https://unstats.un.org/unsd/methodology/m49/overview); difficulty is a curated Converge recognizability classification:
+
+- `easy`: globally familiar countries and strong geographic anchors
+- `medium`: countries an average geography player can reasonably place with feedback
+- `expert`: obscure sovereign states, microstates, island states, territories, and dependencies
+
+Only easy and medium entries marked as standard targets can be selected for a newly scheduled standard daily puzzle. Expert and unclassified entries remain stored and searchable guesses, preserving the complete snapshot for future expert or themed modes. Classification does not change snapshot facts.
+
+The administrator does not assign tiers during routine imports. Review the displayed distribution and investigate only unclassified codes. Classification changes are reviewed source changes to `apps/api/data/country_gameplay.csv`, not mutable dashboard actions.
+
+Gameplay now provides:
+
+- same/different continent feedback for each guess
+- higher/lower plus exact, very close, close, far, or very far proximity
+- capital-to-capital distance plus an eight-way compass direction toward the answer
+- an automatic target-subregion hint after five incorrect guesses
+- the target's difficulty tier when a round is won or its answer is otherwise disclosed
+
+No database migration or snapshot republish is required. Existing scheduled puzzles keep their pinned targets, including expert targets scheduled before this policy. The enhanced feedback applies when those puzzles are played. The standard target restriction applies only to future unscheduled puzzles.
+
 ## Balanced target rotation
 
-`balanced-least-used-v1` is category/question neutral. For the selected daily category/question it:
+`balanced-standard-lru-v2` is category/question neutral. For the selected daily category/question it:
 
-1. Retrieves eligible stable entity IDs from that question's active snapshot.
+1. Retrieves standard target IDs allowed by that question from its active snapshot.
 2. Excludes recently used eligible targets when alternatives exist.
 3. Prioritizes eligible entities that have never appeared.
 4. Otherwise selects the least recently used eligible entity.
 5. Uses the salted date hash only to break ties deterministically.
 
-With a stable set of 120 countries, every country appears before one repeats. Play continues indefinitely through balanced rotations.
+Every currently eligible standard target appears before one repeats when the eligible set and history permit. Play continues indefinitely through balanced rotations.
 
 When data changes:
 
@@ -181,7 +205,7 @@ Each calendar cell shows:
 - pinned dataset label
 - `planned` or `scheduled` state
 
-Targets are hidden by default. **Reveal** is available only for stored dates, requires a confirmation, and creates an audit record. Do not reveal upcoming targets during normal operation.
+Targets are hidden by default. **Reveal** is available only for stored dates, requires a confirmation, creates an audit record, and returns the target's difficulty tier. Do not reveal upcoming targets during normal operation.
 
 ## Operator jobs and audit trail
 

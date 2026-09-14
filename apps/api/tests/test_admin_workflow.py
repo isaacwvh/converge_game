@@ -53,7 +53,6 @@ def test_review_publish_preview_and_apply_schedule(admin_client):
     plan = preview.json()
     assert plan["planned_count"] == len(plan["days"])
     assert all("target_id" not in day for day in plan["days"])
-    assert plan["policy"] == "balanced-least-used-v1"
 
     applied = admin_client.post(
         "/api/v1/admin/schedule/apply",
@@ -81,6 +80,7 @@ def test_review_publish_preview_and_apply_schedule(admin_client):
     revealed = admin_client.post(f"/api/v1/admin/schedule/{plan['days'][0]['date']}/reveal")
     assert revealed.status_code == 200
     assert revealed.json()["target"]["name"]
+    assert revealed.json()["target"]["difficulty"] in {"easy", "medium"}
     actions = [entry["action"] for entry in admin_client.get("/api/v1/admin/audit").json()]
     assert "dataset.review" in actions
     assert "dataset.publish" in actions

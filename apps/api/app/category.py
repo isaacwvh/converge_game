@@ -41,12 +41,12 @@ class CategoryDefinition(ABC):
         }
 
     @abstractmethod
-    def eligible_entity_ids(self, db: Session, dataset_id: str) -> list[str]:
-        """Return stable, sorted IDs eligible for this dataset and question."""
+    def target_entity_ids(self, db: Session, dataset_id: str) -> list[str]:
+        """Return stable, sorted IDs allowed as targets for this question."""
 
     @abstractmethod
     def search_entities(self, db: Session, dataset_id: str, query: str, limit: int = 25) -> list[Entity]:
-        """Search only entities eligible in the pinned dataset."""
+        """Search valid guesses in the pinned dataset; this may be broader than targets."""
 
     @abstractmethod
     def compare(self, db: Session, dataset_id: str, target_id: str, guess_id: str) -> dict:
@@ -56,13 +56,23 @@ class CategoryDefinition(ABC):
     def serialize_answer(self, db: Session, dataset_id: str, target_id: str) -> dict:
         """Serialize the answer after a round has ended."""
 
+    def build_hints(
+        self, db: Session, dataset_id: str, target_id: str, guess_count: int, round_status: str
+    ) -> list[dict]:
+        """Return deterministic hints unlocked by the current round state."""
+        return []
+
+    def admin_dataset_diagnostics(self, db: Session, dataset_id: str) -> dict:
+        target_count = len(self.target_entity_ids(db, dataset_id))
+        return {"eligible_count": target_count, "target_count": target_count}
+
     def serialize_entity(self, entity: Entity) -> dict:
         return {"id": entity.id, "name": entity.name, "code": entity.code}
 
     def admin_dataset_rows(self, db: Session, dataset_id: str) -> list[dict]:
         return [
             self.serialize_entity(entity)
-            for entity_id in self.eligible_entity_ids(db, dataset_id)
+            for entity_id in self.target_entity_ids(db, dataset_id)
             if (entity := db.get(Entity, entity_id)) is not None
         ]
 

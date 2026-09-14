@@ -12,7 +12,7 @@ from .category import CategoryDefinition, CategoryRegistry
 from .config import settings
 from .models import DatasetVersion, Puzzle
 
-POLICY_VERSION = "balanced-least-used-v1"
+POLICY_VERSION = "balanced-standard-lru-v2"
 
 
 @dataclass(frozen=True)
@@ -58,7 +58,7 @@ def available_games(
             continue
         if dataset.effective_month != month and (require_exact_month or dataset.label != "demo-v1"):
             continue
-        entity_ids = tuple(sorted(definition.eligible_entity_ids(db, dataset.id)))
+        entity_ids = tuple(sorted(definition.target_entity_ids(db, dataset.id)))
         if entity_ids:
             available.append(AvailableGame(definition, dataset, entity_ids))
     return tuple(available)

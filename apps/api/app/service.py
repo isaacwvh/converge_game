@@ -21,7 +21,7 @@ def active_dataset(db: Session, category_id: str = "countries", day: date | None
             DatasetVersion.is_active.is_(True),
             (DatasetVersion.effective_month <= day.strftime("%Y-%m")) | DatasetVersion.effective_month.is_(None),
         )
-        .order_by(DatasetVersion.effective_month.desc(), DatasetVersion.published_at.desc())
+        .order_by(DatasetVersion.effective_month.desc().nulls_last(), DatasetVersion.published_at.desc())
     )
     if dataset is None:
         raise HTTPException(503, f"No published dataset for category {category_id}")
@@ -105,7 +105,7 @@ def create_practice_round(
     except KeyError as exc:
         raise HTTPException(404, "Category or question not found") from exc
     dataset = active_dataset(db, definition.category_id)
-    entity_ids = definition.eligible_entity_ids(db, dataset.id)
+    entity_ids = definition.target_entity_ids(db, dataset.id)
     if not entity_ids:
         raise HTTPException(503, f"No eligible {definition.entity_label.lower()} entities")
     puzzle = Puzzle(
@@ -146,6 +146,13 @@ def serialize_round(
         "remaining": max(0, definition.guess_limit - len(guesses)),
         "guesses": rows,
         "rules": definition.rules,
+        "hints": definition.build_hints(
+            db,
+            puzzle.dataset_id,
+            puzzle.target_id,
+            len(guesses),
+            round_.status,
+        ),
     }
     if round_.status != "playing":
         result["answer"] = definition.serialize_answer(db, puzzle.dataset_id, puzzle.target_id)

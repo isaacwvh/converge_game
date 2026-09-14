@@ -37,7 +37,7 @@ def dataset_summary(db: Session, dataset: DatasetVersion) -> dict:
     questions = [
         {
             "question": definition.question_id,
-            "eligible_count": len(definition.eligible_entity_ids(db, dataset.id)),
+            **definition.admin_dataset_diagnostics(db, dataset.id),
         }
         for definition in definitions
     ]

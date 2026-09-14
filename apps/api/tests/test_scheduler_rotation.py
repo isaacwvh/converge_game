@@ -22,7 +22,7 @@ class ManifestCategory(CategoryDefinition):
     def __init__(self, category_id):
         self.category_id = category_id
 
-    def eligible_entity_ids(self, db, dataset_id):
+    def target_entity_ids(self, db, dataset_id):
         dataset = db.get(DatasetVersion, dataset_id)
         codes = set(dataset.source_manifest["eligible_codes"])
         return list(
@@ -34,7 +34,7 @@ class ManifestCategory(CategoryDefinition):
         )
 
     def search_entities(self, db, dataset_id, query, limit=25):
-        ids = set(self.eligible_entity_ids(db, dataset_id))
+        ids = set(self.target_entity_ids(db, dataset_id))
         return [entity for entity in db.scalars(select(Entity).where(Entity.id.in_(ids))) if query.casefold() in entity.name.casefold()][:limit]
 
     def compare(self, db, dataset_id, target_id, guess_id):

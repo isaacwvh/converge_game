@@ -24,6 +24,10 @@ def test_anonymous_daily_round_and_duplicate(client):
     result = client.post(path, json=body, headers={"Idempotency-Key": "first"})
     assert result.status_code == 200
     assert len(result.json()["guesses"]) == 1
+    feedback = result.json()["guesses"][0]["feedback"]
+    assert feedback["population"]["proximity"] in {"exact", "very-close", "close", "far", "very-far"}
+    assert feedback["continent"]["guess_value"] == "Asia"
+    assert feedback["capital_direction"]["direction"] in {"N", "NE", "E", "SE", "S", "SW", "W", "NW", "same"}
     retry = client.post(path, json=body, headers={"Idempotency-Key": "first"})
     assert retry.status_code == 200
     assert len(retry.json()["guesses"]) == 1

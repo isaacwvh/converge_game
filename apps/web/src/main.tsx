@@ -3,7 +3,10 @@ import { createRoot } from 'react-dom/client';
 import { AdminApp } from './AdminApp';
 import './style.css';
 
-type DirectionCell = {direction: 'up'|'down'|'equal'; guess_value: number};
+type Proximity = 'exact'|'very-close'|'close'|'far'|'very-far';
+type DirectionCell = {direction: 'up'|'down'|'equal'; guess_value: number; proximity?: Proximity};
+type MatchCell = {match: boolean; guess_value: string};
+type BearingCell = {direction: string; arrow: string};
 type DisplayRule = {
   style: 'compact'|'number'|'currency';
   currency?: string;
@@ -11,7 +14,13 @@ type DisplayRule = {
   maximum_fraction_digits?: number;
   suffix?: string;
 };
-type Dimension = {id: string; label: string; feedback: 'direction'|'distance'; display: DisplayRule};
+type Dimension = {
+  id: string;
+  label: string;
+  feedback: 'direction'|'distance'|'match';
+  display?: DisplayRule;
+  companion_feedback?: string;
+};
 type Game = {
   category_id: string;
   category_name: string;
@@ -22,7 +31,8 @@ type Game = {
   dimensions: Dimension[];
   rules: Record<string, string>;
 };
-type Guess = {turn: number; name: string; feedback: Record<string, DirectionCell|number>};
+type Guess = {turn: number; name: string; feedback: Record<string, DirectionCell|MatchCell|BearingCell|number>};
+type Hint = {id: string; label: string; value: string; unlocked_at_guess: number};
 type Round = {
   round_id: string;
   category: string;
@@ -33,7 +43,8 @@ type Round = {
   remaining: number;
   max_guesses: number;
   guesses: Guess[];
-  answer?: {name: string; capital?: string};
+  hints?: Hint[];
+  answer?: {name: string; capital?: string; difficulty?: 'easy'|'medium'|'expert'|'unclassified'};
 };
 type Entity = {id: string; name: string; code: string};
 
@@ -58,6 +69,7 @@ function formatValue(value: number, display: DisplayRule): string {
   }
   return new Intl.NumberFormat(undefined, options).format(value) + (display.suffix || '');
 }
+
 
 function App() {
   const [round, setRound] = useState<Round | null>(null);
@@ -128,7 +140,7 @@ function App() {
     </header>
     <section className="intro">
       <h1>{round?.game.prompt || 'Loading today’s challenge…'}</h1>
-      <p>{round?.game.rules.arrows} {round?.game.rules.distance}</p>
+      <p>{[round?.game.rules.arrows, round?.game.rules.continent, round?.game.rules.distance, round?.game.rules.hints].filter(Boolean).join(' · ')}</p>
     </section>
     <section className="archive">
       <label>Challenge date <input type="date" value={selectedDay} onChange={e => setSelectedDay(e.target.value)}/></label>
@@ -154,6 +166,9 @@ function App() {
     </section>}
     {error && <p className="error" role="alert">{error}</p>}
     <div className="turns">{round ? `${round.max_guesses - round.remaining} / ${round.max_guesses} guesses` : 'Loading…'}</div>
+    {round?.hints?.length ? <section className="hints" aria-live="polite">
+      {round.hints.map(hint => <div key={hint.id}><strong>{hint.label}</strong><span>{hint.value}</span></div>)}
+    </section> : null}
     <div className="grid">
       <div className="row heading" style={gridStyle}>
         <div>GUESS</div>
@@ -163,15 +178,30 @@ function App() {
         <div className="country">{guess.name}</div>
         {round.game.dimensions.map(dimension => {
           const feedback = guess.feedback[dimension.id];
+          if (feedback === undefined) {
+            return <div className="cell unavailable" key={dimension.id}>—</div>;
+          }
           if (dimension.feedback === 'direction') {
             const cell = feedback as DirectionCell;
-            return <div className={`cell ${cell.direction}`} key={dimension.id}>
+            return <div className={`cell ${cell.direction} proximity-${cell.proximity || 'unknown'}`} key={dimension.id}>
               <strong>{cell.direction === 'up' ? '↑' : cell.direction === 'down' ? '↓' : '✓'}</strong>
-              <span>{formatValue(cell.guess_value, dimension.display)}</span>
+              <span>{formatValue(cell.guess_value, dimension.display!)}</span>
+              {cell.proximity && <small>{cell.proximity.replace('-', ' ')}</small>}
             </div>;
           }
+          if (dimension.feedback === 'match') {
+            const cell = feedback as MatchCell;
+            return <div className={`cell continent ${cell.match ? 'equal' : 'miss'}`} key={dimension.id}>
+              <strong>{cell.match ? '✓' : '—'}</strong>
+              <span>{cell.guess_value}</span>
+            </div>;
+          }
+          const bearing = dimension.companion_feedback
+            ? guess.feedback[dimension.companion_feedback] as BearingCell|undefined
+            : undefined;
           return <div className="distance" key={dimension.id}>
-            {formatValue(feedback as number, dimension.display)}
+            <span>{formatValue(feedback as number, dimension.display!)}</span>
+            {bearing && <><strong className="bearing">{bearing.arrow}</strong><small>{bearing.direction}</small></>}
           </div>;
         })}
       </div>)}
@@ -180,6 +210,7 @@ function App() {
       <h2>{round.status === 'won' ? 'You found it!' : 'The answer was'}</h2>
       <p>{round.answer.name}</p>
       {round.answer.capital && <small>Capital: {round.answer.capital}</small>}
+      {round.answer.difficulty && <small className="answer-difficulty">Difficulty: {round.answer.difficulty}</small>}
     </section>}
     <footer>Daily puzzle resets at 00:00 UTC · No account required</footer>
   </main>;

@@ -33,7 +33,7 @@ Countries implement that contract in `apps/api/app/country_category.py`. Their c
 
 Each scheduled `Puzzle` stores both category and question IDs plus its dataset and target. `Puzzle.day` is globally unique when non-null, so practice puzzles can coexist while only one challenge can be selected for a UTC date. A scheduled puzzle never follows a later active dataset.
 
-Daily target rotation is category/question neutral and uses stable entity identity across snapshots. It avoids recently used eligible targets, prioritizes never-used entities, then selects the least recently used entity with a deterministic salted tie-breaker. Removed entities leave rotation immediately; new entities enter once without being repeated to catch up.
+Daily target rotation is category/question neutral and uses stable entity identity across snapshots. Countries use a curated easy/medium standard target pool while expert countries remain searchable. Rotation avoids recently used eligible targets, prioritizes never-used entities, then selects the least recently used entity with a deterministic salted tie-breaker. Removed entities leave rotation immediately; new entities enter once without being repeated to catch up.
 
 ### Adding animals later
 
