@@ -245,10 +245,6 @@ def state(db: Session) -> dict:
         warnings.append("A demo dataset is active")
     if settings.daily_salt in {"development-only-salt", "replace-with-a-long-random-secret-before-production"}:
         warnings.append("The development daily salt is configured")
-    if not settings.oidc_configured:
-        warnings.append("Administrator OIDC is not fully configured")
-    if settings.admin_local_login_enabled:
-        warnings.append("Local administrator login is enabled; disable it when OIDC is ready")
     month = today.strftime("%Y-%m")
     scheduled_this_month = db.scalar(
         select(func.count(Puzzle.id)).where(
@@ -263,7 +259,6 @@ def state(db: Session) -> dict:
         "database": {"driver": url.drivername, "host": url.host or "local-file", "name": url.database},
         "migration": migration,
         "utc_today": today.isoformat(),
-        "oidc_configured": settings.oidc_configured,
         "warnings": warnings,
         "categories": category_registry.catalog(),
         "datasets": datasets,

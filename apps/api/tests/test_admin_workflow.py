@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from sqlalchemy import func, select
 
-from app.admin_auth import AdminIdentity, require_admin, require_csrf, require_sensitive_admin
+from app.admin_auth import AdminIdentity, require_admin, require_csrf
 from app.admin_jobs import process_next_job
 from app.db import SessionLocal
 from app.import_countries import import_file
@@ -14,10 +14,9 @@ from app.models import DatasetVersion, OperatorJob, Puzzle
 
 @pytest.fixture
 def admin_client(client):
-    identity = AdminIdentity("test-admin", "admin@example.test", "Test Admin")
+    identity = AdminIdentity("test-admin")
     app.dependency_overrides[require_admin] = lambda: identity
     app.dependency_overrides[require_csrf] = lambda: identity
-    app.dependency_overrides[require_sensitive_admin] = lambda: identity
     try:
         yield client
     finally:

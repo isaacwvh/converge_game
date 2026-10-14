@@ -3,6 +3,7 @@ from pathlib import Path
 
 os.environ["DATABASE_URL"] = "sqlite:///./test_converge.db"
 os.environ["DAILY_SALT"] = "test-secret"
+os.environ["ADMIN_PASSWORD"] = "test-admin-password"
 
 import pytest
 from fastapi.testclient import TestClient

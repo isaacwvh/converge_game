@@ -5,7 +5,7 @@ Daily category-based deduction game. FastAPI owns global daily selection, catego
 ## Quick start
 
 1. Copy `.env.example` to `.env`.
-2. For immediate local access, set `ADMIN_LOCAL_LOGIN_ENABLED=true`; configure allowlisted OIDC later as described in [docs/admin.md](docs/admin.md).
+2. Set `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` to long random values.
 3. Run `docker compose up --build`.
 4. Open http://localhost:5173. Administrator console: http://localhost:5173/admin. API docs: http://localhost:8000/docs.
 

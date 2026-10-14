@@ -2,28 +2,16 @@
 
 The administrator console is available at `/admin`. It operates the database configured for that deployment only. It does not copy snapshots, schedules, players, or rounds between local, staging, and production environments.
 
-## Configure allowlisted OIDC
+## Configure administrator password
 
-Register Converge as a confidential web application with an OpenID Connect provider. Configure this redirect URI exactly for local use:
-
-```text
-http://localhost:5173/api/v1/admin/auth/callback
-```
-
-Set these values in `.env`:
+Set a long random administrator password and an independent session-signing secret in `.env`:
 
 ```dotenv
 APP_ENV=local
 DEPLOYMENT_ID=converge-local
-PUBLIC_BASE_URL=http://localhost:5173
+ADMIN_PASSWORD=<long-random-password>
 ADMIN_SESSION_SECRET=<at-least-32-random-characters>
-ADMIN_OIDC_DISCOVERY_URL=https://provider.example/.well-known/openid-configuration
-ADMIN_OIDC_CLIENT_ID=<client-id>
-ADMIN_OIDC_CLIENT_SECRET=<client-secret>
-ADMIN_OIDC_ALLOWED_SUBJECTS=<oidc-subject-id>[,<second-subject-id>]
 ```
-
-`ADMIN_OIDC_ALLOWED_SUBJECTS` contains stable OIDC `sub` claim values, not display names. The configured issuer and subject together identify an administrator. Authentication by the provider is not enough unless the returned subject is in this allowlist.
 
 Restart after changing authentication configuration:
 
@@ -31,30 +19,9 @@ Restart after changing authentication configuration:
 docker compose up --build -d
 ```
 
-Open `http://localhost:5173/admin` and select **Sign in with OIDC**. The API validates the authorization response and ID token through the provider metadata, checks the subject allowlist, creates an eight-hour signed HttpOnly session, and issues a CSRF token. Every administrator API validates the session; mutations also validate the CSRF token.
+Open `http://localhost:5173/admin` and enter `ADMIN_PASSWORD`. A successful login creates an eight-hour signed HttpOnly session and a CSRF token. Every administrator API validates the session; mutations also validate the CSRF token.
 
-Production publication, fetch, schedule, and target-reveal actions require OIDC authentication within the preceding five minutes. The console redirects through OIDC with `prompt=login` when reauthentication is stale.
-
-## Temporary local administrator login
-
-OIDC can remain unconfigured during local development. Set this explicit development-only switch in the root `.env`:
-
-```dotenv
-APP_ENV=local
-ADMIN_LOCAL_LOGIN_ENABLED=true
-```
-
-Restart with `docker compose up --build -d`, open `http://localhost:5173/admin`, and select **Continue as local administrator**. This creates the same signed administrator session and CSRF protection used by the OIDC path, under the audited subject `local-development-admin`.
-
-The switch works only when `APP_ENV=local`. Production refuses to start if it is enabled, and staging never accepts it. Anyone who can reach the locally exposed application can select this button, so do not expose the development ports to an untrusted network.
-
-When OIDC is ready, configure the OIDC values described above and change:
-
-```dotenv
-ADMIN_LOCAL_LOGIN_ENABLED=false
-```
-
-Restart the stack. Existing local-login sessions are rejected immediately, and **Sign in with OIDC** becomes the access path. No database, API, or frontend migration is required.
+The password is shared, so audit records identify the fixed subject `password-admin`, not an individual person. Use HTTPS with `COOKIE_SECURE=true` in production. When rotating the password, rotate `ADMIN_SESSION_SECRET` at the same time to invalidate existing sessions.
 
 
 ## Understand the environment banner
@@ -67,7 +34,7 @@ The banner is always visible after login and shows:
 
 The `installation` database row permanently records the environment and deployment identity on first initialization. API and worker startup fail if configuration points at a database marked for a different environment or deployment. This prevents a local process with production credentials from operating silently.
 
-Local Compose uses its own `pgdata` volume. Local imports and schedules never appear in production unless a production database is deliberately copied or configured. Use a unique database, deployment ID, daily salt, OIDC client, and session secret for every environment.
+Local Compose uses its own `pgdata` volume. Local imports and schedules never appear in production unless a production database is deliberately copied or configured. Use a unique database, deployment ID, daily salt, administrator password, and session secret for every environment.
 
 Production additionally refuses to start when:
 
@@ -75,7 +42,7 @@ Production additionally refuses to start when:
 - the development daily salt is configured
 - cookies are not secure
 - the admin session secret is weak/default
-- allowlisted OIDC is incomplete
+- the administrator password is weak/default
 
 Production also refuses to publish or schedule a demo dataset.
 
@@ -88,7 +55,7 @@ The top cards show:
 - staged and active dataset counts
 - player, round, and guess totals
 
-**Needs attention** lists actionable safety and readiness warnings, including demo data, development salt, missing OIDC configuration, and `SEED_DEMO` status.
+**Needs attention** lists actionable safety and readiness warnings, including demo data, the development salt, and `SEED_DEMO` status.
 
 The **Categories and questions** section is generated from the category registry. It shows each stable category/question ID, guess limit, and feedback dimensions. Only Countries appears until another complete category implementation is explicitly registered.
 
@@ -213,7 +180,7 @@ The worker persists jobs in `operator_jobs`. Queued/running work survives API re
 
 The audit trail records:
 
-- OIDC login/logout
+- password login/logout
 - job requests and outcomes
 - dataset review
 - dataset publication
@@ -247,21 +214,13 @@ PRODUCTION PUBLISH <dataset-label>
 PRODUCTION SCHEDULE YYYY-MM
 ```
 
-Cancellation leaves state unchanged. A recent OIDC login and matching text are both required; frontend prompts are convenience only, because the API independently enforces both checks.
+Cancellation leaves state unchanged. An authenticated administrator session and matching text are both required; frontend prompts are convenience only, because the API independently enforces both checks.
 
 ## Troubleshooting
 
-### OIDC is not configured
+### Password login fails
 
-All four OIDC settings and at least one allowed subject are required. Restart the API after changing `.env`.
-
-### Redirect URI mismatch
-
-The provider redirect URI must equal `PUBLIC_BASE_URL` plus `/api/v1/admin/auth/callback` exactly, including scheme and port.
-
-### Authenticated identity is not an administrator
-
-The verified token's `sub` is not in `ADMIN_OIDC_ALLOWED_SUBJECTS`. Add the stable subject deliberately; do not allowlist by an unverified display name.
+Confirm `ADMIN_PASSWORD` is present in the environment used by the API, restart the API after changing it, and enter the value exactly. Production rejects the documented placeholder and passwords shorter than 16 characters.
 
 ### Fetch remains queued
 

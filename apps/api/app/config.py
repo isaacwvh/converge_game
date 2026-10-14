@@ -10,32 +10,15 @@ class Settings(BaseSettings):
     app_version: str = "development"
     cookie_secure: bool = False
     frontend_origin: str = "http://localhost:5173"
-    public_base_url: str = "http://localhost:5173"
     daily_salt: str = "development-only-salt"
     recent_target_window: int = 30
     seed_demo: bool = False
     admin_session_secret: str = "local-admin-session-secret-change-me"
-    admin_oidc_discovery_url: str = ""
-    admin_oidc_client_id: str = ""
-    admin_oidc_client_secret: str = ""
-    admin_oidc_allowed_subjects: str = ""
-    admin_local_login_enabled: bool = False
+    admin_password: str = "replace-with-a-long-random-password"
     operator_job_poll_seconds: float = 2.0
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    @property
-    def allowed_admin_subjects(self) -> set[str]:
-        return {subject.strip() for subject in self.admin_oidc_allowed_subjects.split(",") if subject.strip()}
-
-    @property
-    def oidc_configured(self) -> bool:
-        return bool(
-            self.admin_oidc_discovery_url
-            and self.admin_oidc_client_id
-            and self.admin_oidc_client_secret
-            and self.allowed_admin_subjects
-        )
 
     def validate_runtime(self) -> None:
         if not self.deployment_id.strip():
@@ -53,10 +36,11 @@ class Settings(BaseSettings):
             problems.append("ADMIN_SESSION_SECRET must be a production secret")
         if not self.cookie_secure:
             problems.append("COOKIE_SECURE must be true")
-        if not self.oidc_configured:
-            problems.append("allowlisted administrator OIDC must be configured")
-        if self.admin_local_login_enabled:
-            problems.append("ADMIN_LOCAL_LOGIN_ENABLED must be false")
+        if (
+            self.admin_password == "replace-with-a-long-random-password"
+            or len(self.admin_password) < 16
+        ):
+            problems.append("ADMIN_PASSWORD must be a production secret of at least 16 characters")
         if problems:
             raise RuntimeError("Unsafe production configuration: " + "; ".join(problems))
 

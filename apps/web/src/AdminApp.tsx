@@ -2,14 +2,9 @@ import React, {useEffect, useMemo, useState} from 'react';
 import './admin.css';
 
 type AuthState = {
-  configured: boolean;
-  local_login_enabled: boolean;
-  local_login_url: string;
   authenticated: boolean;
-  admin: {subject: string; email?: string; name?: string}|null;
+  admin: {subject: string}|null;
   csrf_token?: string;
-  recent_authentication?: boolean;
-  login_url: string;
 };
 type Question = {question_id: string; question_name: string; guess_limit: number; dimensions: {id: string; label: string}[]};
 type Category = {id: string; name: string; entity_label: string; questions: Question[]};
@@ -69,10 +64,6 @@ async function request<T>(path: string, auth?: AuthState|null, options?: Request
   if (options?.body) headers.set('Content-Type', 'application/json');
   if (auth?.csrf_token && options?.method && options.method !== 'GET') headers.set('X-CSRF-Token', auth.csrf_token);
   const response = await fetch(path, {credentials: 'include', ...options, headers});
-  if (response.status === 428) {
-    window.location.assign('/api/v1/admin/auth/login?next=/admin&reauth=true');
-    throw new Error('Redirecting for reauthentication');
-  }
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
     throw new Error(body.detail || `Request failed: ${response.status}`);
@@ -90,6 +81,7 @@ function Status({children, tone = 'neutral'}: {children: React.ReactNode; tone?:
 
 export function AdminApp() {
   const [auth, setAuth] = useState<AuthState|null>(null);
+  const [password, setPassword] = useState('');
   const [overview, setOverview] = useState<Overview|null>(null);
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -108,16 +100,21 @@ export function AdminApp() {
     return status;
   }
 
-  async function localLogin() {
-    setBusy('local-login');
+  async function login(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy('login');
     setError('');
     try {
-      await request(auth?.local_login_url || '/api/v1/admin/auth/local-login', null, {method: 'POST'});
+      await request('/api/v1/admin/auth/login', null, {
+        method: 'POST',
+        body: JSON.stringify({password}),
+      });
       const status = await loadAuth();
       await refresh(status);
     } catch (e) {
       setError((e as Error).message);
     } finally {
+      setPassword('');
       setBusy('');
     }
   }
@@ -248,11 +245,12 @@ export function AdminApp() {
     <div className="admin-login-card">
       <div className="admin-brand">CONVERGE ADMIN</div>
       <h1>Game operations</h1>
-      <p>Use the explicitly enabled local session now, or an allowlisted OpenID Connect identity when OIDC is configured.</p>
+      <p>Enter the administrator password to continue.</p>
       {error && <div className="admin-message error" role="alert">{error}</div>}
-      {auth.local_login_enabled && <button className="admin-primary" disabled={busy === 'local-login'} onClick={localLogin}>{busy === 'local-login' ? 'Signing in…' : 'Continue as local administrator'}</button>}
-      {auth.configured && <a className="admin-primary" href={`${auth.login_url}?next=/admin`}>Sign in with OIDC</a>}
-      {!auth.local_login_enabled && !auth.configured && <div className="admin-warning"><strong>Administrator login is not configured.</strong><span>Enable ADMIN_LOCAL_LOGIN_ENABLED only for local development, or configure allowlisted OIDC.</span></div>}
+      <form className="admin-login-form" onSubmit={login}>
+        <label>Password<input type="password" autoComplete="current-password" autoFocus required value={password} onChange={event => setPassword(event.target.value)}/></label>
+        <button className="admin-primary" disabled={busy === 'login' || !password}>{busy === 'login' ? 'Signing in…' : 'Sign in'}</button>
+      </form>
       <a className="admin-link" href="/">Return to game</a>
     </div>
   </main>;

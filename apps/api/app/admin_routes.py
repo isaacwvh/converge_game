@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from .admin_auth import AdminIdentity, require_admin, require_confirmation, require_csrf, require_sensitive_admin
+from .admin_auth import AdminIdentity, require_admin, require_confirmation, require_csrf
 from .admin_service import (
     audit,
     dataset_detail,
@@ -62,7 +62,7 @@ def dataset(dataset_id: str, admin: AdminIdentity = Depends(require_admin), db: 
 @router.post("/datasets/{dataset_id}/review")
 def review(
     dataset_id: str,
-    admin: AdminIdentity = Depends(require_sensitive_admin),
+    admin: AdminIdentity = Depends(require_csrf),
     db: Session = Depends(get_db),
 ):
     try:
@@ -75,7 +75,7 @@ def review(
 def publish(
     dataset_id: str,
     body: ConfirmationIn,
-    admin: AdminIdentity = Depends(require_sensitive_admin),
+    admin: AdminIdentity = Depends(require_csrf),
     db: Session = Depends(get_db),
 ):
     dataset = db.get(DatasetVersion, dataset_id)
@@ -91,7 +91,7 @@ def publish(
 @router.post("/jobs/countries/fetch")
 def fetch_countries(
     body: FetchCountriesIn,
-    admin: AdminIdentity = Depends(require_sensitive_admin),
+    admin: AdminIdentity = Depends(require_csrf),
     db: Session = Depends(get_db),
 ):
     require_confirmation(body.confirmation, f"PRODUCTION FETCH {body.effective_month}")
@@ -121,7 +121,7 @@ def preview(month: str, admin: AdminIdentity = Depends(require_admin), db: Sessi
 @router.post("/schedule/apply")
 def apply_schedule(
     body: ApplyScheduleIn,
-    admin: AdminIdentity = Depends(require_sensitive_admin),
+    admin: AdminIdentity = Depends(require_csrf),
     db: Session = Depends(get_db),
 ):
     require_confirmation(body.confirmation, f"PRODUCTION SCHEDULE {body.month}")
@@ -140,7 +140,7 @@ def apply_schedule(
 @router.post("/schedule/{day}/reveal")
 def reveal_target(
     day: date,
-    admin: AdminIdentity = Depends(require_sensitive_admin),
+    admin: AdminIdentity = Depends(require_csrf),
     db: Session = Depends(get_db),
 ):
     puzzle = db.scalar(select(Puzzle).where(Puzzle.day == day))
